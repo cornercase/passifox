@@ -10,7 +10,6 @@ $(function() {
 	options.initAbout();
 });
 
-
 var options = options || {};
 
 options.settings = typeof(localStorage.settings)=='undefined' ? {} : JSON.parse(localStorage.settings);
@@ -69,14 +68,16 @@ options.initGeneralSettings = function() {
 		}, options.showKeePassHttpVersions);
 	});
 
-
 	$("#showDangerousSettings").click(function() {
-		$("#dangerousSettings").show();
-		$(this).hide();
+        $('#dangerousSettings').is(":visible") ? $(this).text("Show these settings anyway") : $(this).text("Hide");
+        $("#dangerousSettings").toggle();
 	});
 
 	$("#hostname").val(options.settings["hostname"]);
 	$("#port").val(options.settings["port"]);
+	$("#blinkTimeout").val(options.settings["blinkTimeout"]);
+	$("#blinkMinTimeout").val(options.settings["blinkMinTimeout"]);
+	$("#allowedRedirect").val(options.settings["allowedRedirect"]);
 
 	$("#portButton").click(function() {
 		var port = $.trim($("#port").val());
@@ -109,6 +110,51 @@ options.initGeneralSettings = function() {
 		options.settings["hostname"] = hostname;
 		$("#hostname").closest(".control-group").removeClass("error").addClass("success");
 		setTimeout(function() {$("#hostname").closest(".control-group").removeClass("success")}, 2500);
+
+		localStorage.settings = JSON.stringify(options.settings);
+
+		chrome.extension.sendMessage({
+			action: 'load_settings'
+		});
+	});
+
+		$("#blinkTimeoutButton").click(function(){
+		var blinkTimeout = $.trim($("#blinkTimeout").val());
+		var blinkTimeoutval = parseInt(blinkTimeout);
+		
+                options.settings["blinkTimeout"] = blinkTimeoutval.toString();
+		$("#blinkTimeout").closest(".control-group").removeClass("error").addClass("success");
+		setTimeout(function() {$("#blinkTimeout").closest(".control-group").removeClass("success")}, 2500);
+
+		localStorage.settings = JSON.stringify(options.settings);
+
+		chrome.extension.sendMessage({
+			action: 'load_settings'
+		});
+	});
+
+	$("#blinkMinTimeoutButton").click(function(){
+		var blinkMinTimeout = $.trim($("#blinkMinTimeout").val());
+		var blinkMinTimeoutval = parseInt(blinkMinTimeout);
+		
+        options.settings["blinkMinTimeout"] = blinkMinTimeoutval.toString();
+		$("#blinkMinTimeout").closest(".control-group").removeClass("error").addClass("success");
+		setTimeout(function() {$("#blinkMinTimeout").closest(".control-group").removeClass("success")}, 2500);
+
+		localStorage.settings = JSON.stringify(options.settings);
+
+		chrome.extension.sendMessage({
+			action: 'load_settings'
+		});
+	});
+
+	$("#allowedRedirectButton").click(function(){
+		var allowedRedirect = $.trim($("#allowedRedirect").val());
+		var allowedRedirectval = parseInt(allowedRedirect);
+		
+        options.settings["allowedRedirect"] = allowedRedirectval.toString();
+		$("#allowedRedirect").closest(".control-group").removeClass("error").addClass("success");
+		setTimeout(function() {$("#allowedRedirect").closest(".control-group").removeClass("success")}, 2500);
 
 		localStorage.settings = JSON.stringify(options.settings);
 
@@ -203,6 +249,11 @@ options.initConnectedDatabases = function() {
 	else {
 		$("#tab-connected-databases table tbody:first tr.empty:first").show();
 	}
+	$("#connect-button").click(function() {
+		chrome.extension.sendMessage({
+			action: "associate"
+		});
+	});
 }
 
 options.initSpecifiedCredentialFields = function() {
